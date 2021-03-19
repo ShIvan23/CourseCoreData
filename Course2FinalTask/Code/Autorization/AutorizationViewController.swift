@@ -13,6 +13,7 @@ final class AutorizationViewController: UIViewController {
     //    MARK: - Private Properties
     private var appDelegate = AppDelegate.shared
     private var apiManager = APIInstagramManager()
+    private let keychain: KeychainProtocol = KeychainManager()
     private lazy var alert = AlertViewController(view: self)
     
     private lazy var loginTextField: UITextField = {
@@ -69,6 +70,10 @@ final class AutorizationViewController: UIViewController {
         createUI()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+    }
+    
     //    MARK: - Private Methods
     private func createUI() {
         view.backgroundColor = .white
@@ -112,7 +117,14 @@ final class AutorizationViewController: UIViewController {
             
             switch result {
             case .success(let token):
-            
+                
+                if self?.keychain.saveToken(token: token.token, userName: login) == true {
+                    print("Token saved in keychain")
+                }
+                
+                guard let readenToken = self?.keychain.readToken(userName: "user") else { return }
+                print("Readen token = \(readenToken)")
+                
                 APIInstagramManager.token = token.token
 
                 let storyboard = UIStoryboard(name: AppDelegate.storyboardName, bundle: nil)

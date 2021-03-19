@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C0E7A8225F7C40800AF1FF7 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0E7A8125F7C40800AF1FF7 /* KeychainManager.swift */; };
 		2C21A07A257B969C0033B5AC /* ErrorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C21A079257B969C0033B5AC /* ErrorManager.swift */; };
 		2C21A07C257B9F570033B5AC /* APIInstagramManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C21A07B257B9F570033B5AC /* APIInstagramManager.swift */; };
 		2C21A07F257BA54A0033B5AC /* CurrentUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C21A07E257BA54A0033B5AC /* CurrentUser.swift */; };
@@ -60,6 +61,7 @@
 
 /* Begin PBXFileReference section */
 		03437B099282B9C47EA853D1 /* Pods-Course2FinalTask.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Course2FinalTask.release.xcconfig"; path = "Target Support Files/Pods-Course2FinalTask/Pods-Course2FinalTask.release.xcconfig"; sourceTree = "<group>"; };
+		2C0E7A8125F7C40800AF1FF7 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 		2C21A079257B969C0033B5AC /* ErrorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorManager.swift; sourceTree = "<group>"; };
 		2C21A07B257B9F570033B5AC /* APIInstagramManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIInstagramManager.swift; sourceTree = "<group>"; };
 		2C21A07E257BA54A0033B5AC /* CurrentUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentUser.swift; sourceTree = "<group>"; };
@@ -119,6 +121,14 @@
 				D05531EC0672129E7949D4C3 /* Pods_Course2FinalTask.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2C0E7A8025F7C3CF00AF1FF7 /* Keychain manager */ = {
+			isa = PBXGroup;
+			children = (
+				2C0E7A8125F7C40800AF1FF7 /* KeychainManager.swift */,
+			);
+			path = "Keychain manager";
 			sourceTree = "<group>";
 		};
 		2C21A07D257BA52F0033B5AC /* API Manager */ = {
@@ -243,6 +253,7 @@
 				2CAC465A24C624A000EB064F /* Storyboard.storyboard */,
 				2CDB5A61259A6579001B7A4E /* Autorization */,
 				2C5A042225A35D0C00B7F6F6 /* TabBarController */,
+				2C0E7A8025F7C3CF00AF1FF7 /* Keychain manager */,
 				2C663C9C252DC2B7007CCFCD /* NewPost */,
 				2C5A9F3D24D5C013008FC5DE /* Followers */,
 				2C5A9F3A24D58DBA008FC5DE /* Feed */,
@@ -422,6 +433,7 @@
 				2C663CAA252DDCE4007CCFCD /* AddFilterViewController.swift in Sources */,
 				2C5A9F3924D57F77008FC5DE /* ProfileHeaderCell.swift in Sources */,
 				2C663CB2252F2D32007CCFCD /* AlertViewController.swift in Sources */,
+				2C0E7A8225F7C40800AF1FF7 /* KeychainManager.swift in Sources */,
 				2CDB5A54258E6825001B7A4E /* PostID.swift in Sources */,
 				2CDC1CF225796725009EDD89 /* APIManager.swift in Sources */,
 				74B79258202B3254006BCB41 /* AppDelegate.swift in Sources */,

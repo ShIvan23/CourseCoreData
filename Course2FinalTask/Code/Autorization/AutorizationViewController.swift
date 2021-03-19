@@ -15,6 +15,7 @@ final class AutorizationViewController: UIViewController {
     private var apiManager = APIInstagramManager()
     private let keychain: KeychainProtocol = KeychainManager()
     private lazy var alert = AlertViewController(view: self)
+    private lazy var block = BlockViewController(view: view)
     
     private lazy var loginTextField: UITextField = {
         let textField = UITextField()
@@ -72,6 +73,12 @@ final class AutorizationViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        
+        guard let token = keychain.readToken(userName: "user") else { return }
+        block.startAnimating()
+        APIInstagramManager.token = token
+        block.stopAnimating()
+        presentTabBarController()
     }
     
     //    MARK: - Private Methods
@@ -101,6 +108,14 @@ final class AutorizationViewController: UIViewController {
         NSLayoutConstraint.activate(constraints)
     }
     
+    private func presentTabBarController() {
+        let storyboard = UIStoryboard(name: AppDelegate.storyboardName, bundle: nil)
+        
+        guard let tabBar = storyboard.instantiateViewController(withIdentifier: "TabBar") as? TabBarController else { return }
+        
+        appDelegate.window?.rootViewController = tabBar
+    }
+    
     @objc private func inputText() {
         guard let login = loginTextField.text,
               let password = passwordTextField.text else { return }
@@ -118,21 +133,12 @@ final class AutorizationViewController: UIViewController {
             switch result {
             case .success(let token):
                 
-                if self?.keychain.saveToken(token: token.token, userName: login) == true {
-                    print("Token saved in keychain")
-                }
-                
-                guard let readenToken = self?.keychain.readToken(userName: "user") else { return }
-                print("Readen token = \(readenToken)")
+                self?.keychain.saveToken(token: token.token, userName: login)
                 
                 APIInstagramManager.token = token.token
-
-                let storyboard = UIStoryboard(name: AppDelegate.storyboardName, bundle: nil)
                 
-                guard let tabBar = storyboard.instantiateViewController(withIdentifier: "TabBar") as? TabBarController else { return }
+                self?.presentTabBarController()
                 
-                self?.appDelegate.window?.rootViewController = tabBar
-                    
             case.failure(let error):
                 self?.alert.createAlert(error: error)
             }

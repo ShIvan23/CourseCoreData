@@ -9,16 +9,12 @@
 import Foundation
 
 protocol KeychainProtocol {
-    func saveToken(token: String, userName: String) -> Bool
+    func saveToken(token: String, userName: String)
     func readToken(userName: String) -> String?
-    func deleteToken(userName: String) -> Bool
-//    func readAllItems() -> [String : String]?
+    func deleteToken(userName: String)
 }
 
 class KeychainManager: KeychainProtocol {
-    
-    // MARK: - Public Properties
-    static var login: String? 
     
     // MARK: - Private Methods
     private func keychainQuery(userName: String? = nil) -> [String : AnyObject] {
@@ -35,7 +31,7 @@ class KeychainManager: KeychainProtocol {
     }
     
     // MARK: - Public Methods
-    func saveToken(token: String, userName: String) -> Bool {
+    func saveToken(token: String, userName: String) {
         
         let tokenData = token.data(using: .utf8)
         
@@ -44,14 +40,12 @@ class KeychainManager: KeychainProtocol {
             attributesToUpdate[kSecValueData as String] = tokenData as AnyObject
             
             let query = keychainQuery(userName: userName)
-            let status = SecItemUpdate(query as CFDictionary, attributesToUpdate as CFDictionary)
-            return status == noErr
+            let _ = SecItemUpdate(query as CFDictionary, attributesToUpdate as CFDictionary)
         }
         
         var item = keychainQuery(userName: userName)
         item[kSecValueData as String] = tokenData as AnyObject
-        let status = SecItemAdd(item as CFDictionary, nil)
-        return status == noErr
+        let _ = SecItemAdd(item as CFDictionary, nil)
     }
     
     func readToken(userName: String) -> String? {
@@ -77,48 +71,8 @@ class KeychainManager: KeychainProtocol {
         return token
     }
     
-    func deleteToken(userName: String) -> Bool {
+    func deleteToken(userName: String) {
         let item = keychainQuery(userName: userName)
-        let status = SecItemDelete(item as CFDictionary)
-        return status == noErr
+        let _ = SecItemDelete(item as CFDictionary)
     }
-    
-//    func readAllItems() -> [String : String]? {
-//        var query = keychainQuery()
-//        query[kSecMatchLimit as String] = kSecMatchLimitAll
-//        query[kSecReturnData as String] = kCFBooleanTrue
-//        query[kSecReturnAttributes as String] = kCFBooleanTrue
-//
-//        var queryResult: AnyObject?
-//        let status = SecItemCopyMatching(query as CFDictionary, UnsafeMutablePointer(&queryResult))
-//
-//        if status != noErr {
-//            return nil
-//        }
-//
-//        guard let items = queryResult as? [[String : AnyObject]] else {
-//            return nil
-//        }
-//
-//        var tokenItems = [String : String]()
-//
-//        for (index, item) in items.enumerated() {
-//            guard let tokenData = item[kSecValueData as String] as? Data,
-//                  let token = String(data: tokenData, encoding: .utf8) else {
-//                continue
-//            }
-//
-//            if let account = item[kSecAttrAccount as String] as? String {
-//                tokenItems[account] = token
-//                continue
-//            }
-//
-//            let account = "empty account \(index)"
-//            tokenItems[account] = token
-//        }
-//
-//        return tokenItems
-//    }
-    
-    
 }

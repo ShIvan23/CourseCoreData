@@ -22,6 +22,7 @@ class ProfileViewController: UIViewController {
     private var postsOfCurrentUser: [Post]?
     private let apiManger = APIInstagramManager()
     private var appDelegate = AppDelegate.shared
+    private let keychain: KeychainProtocol = KeychainManager()
     
 //    MARK: - Life Cycles Methods
     override func viewDidLoad() {
@@ -109,6 +110,8 @@ class ProfileViewController: UIViewController {
             guard let self = self else { return }
 
             APIInstagramManager.token = ""
+            self.keychain.deleteToken(userName: "user")
+            
                 self.appDelegate.window?.rootViewController = AutorizationViewController()
         }
     }

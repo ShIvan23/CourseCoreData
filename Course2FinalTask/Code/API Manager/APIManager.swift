@@ -25,6 +25,14 @@ protocol APIManager {
 
 extension APIManager {
     
+    private var keychain: KeychainProtocol {
+        return KeychainManager()
+    }
+    
+    private var appDelegate: AppDelegate {
+        return AppDelegate.shared
+    }
+    
     private func JSONTask(request: URLRequest, completionHandler: @escaping JSONCompletionHandler) -> JSONTask {
         
         let dataTask = session.dataTask(with: request) { (data, response, error) in
@@ -35,23 +43,39 @@ extension APIManager {
                 completionHandler(nil, nil ,error)
                 return
             }
+            let error: ErrorManager
             
-            if data != nil {
+            switch HTTPResponse.statusCode {
+            case 200:
                 print("response = \(HTTPResponse.statusCode)")
                 completionHandler(data, HTTPResponse, nil)
-            } else {
-                let error: ErrorManager
                 
-                switch HTTPResponse.statusCode {
-                case 400: error = .badRequest
-                case 401: error = .unauthorized
-                case 404: error = .notFound
-                case 406: error = .notAcceptable
-                case 422: error = .unprocessable
-                default: error = .transferError
-                }
-
+            case 400:
+                error = .badRequest
                 completionHandler(nil, HTTPResponse, error)
+                
+            case 401:
+                error = .unauthorized
+                keychain.deleteToken(userName: "user")
+                DispatchQueue.main.async {
+                    appDelegate.window?.rootViewController = AutorizationViewController()
+                }
+                completionHandler(nil, HTTPResponse, error)
+                
+            case 404:
+                error = .notFound
+                completionHandler(nil, HTTPResponse, error)
+                
+            case 406:
+                error = .notAcceptable
+                completionHandler(nil, HTTPResponse, error)
+                
+            case 422:
+                error = .unprocessable
+                completionHandler(nil, HTTPResponse, error)
+//            default: error = .transferError
+            default: return
+                
             }
         }
         return dataTask

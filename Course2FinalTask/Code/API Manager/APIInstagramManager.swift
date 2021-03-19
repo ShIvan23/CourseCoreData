@@ -16,11 +16,7 @@ final class APIInstagramManager: APIManager, RequestManager {
         return URLSession(configuration: self.sessionConfiguration)
     }()
     
-    static var token = "" {
-        didSet {
-            KeychainManager.login = token
-        }
-    }
+    static var token = ""
     
     init(sessionConfiguration: URLSessionConfiguration) {
         self.sessionConfiguration = sessionConfiguration

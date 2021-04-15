@@ -8,7 +8,7 @@
 
 import UIKit
 
-class FilterCell: UICollectionViewCell {
+final class FilterCell: UICollectionViewCell {
     
     //    MARK: - Private Properties
     private let queue = OperationQueue()

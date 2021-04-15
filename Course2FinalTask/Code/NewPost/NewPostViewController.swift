@@ -8,7 +8,7 @@
 
 import UIKit
 
-class NewPostViewController: UIViewController {
+final class NewPostViewController: UIViewController {
     
     //    MARK: - IB Outlets
     @IBOutlet weak var collectionView: UICollectionView!

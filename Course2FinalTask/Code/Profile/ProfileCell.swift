@@ -9,14 +9,19 @@
 import UIKit
 import Kingfisher
 
-class ProfileCell: UICollectionViewCell {
+final class ProfileCell: UICollectionViewCell {
     
     //    MARK: - IB Outlets
     @IBOutlet weak var postsImage: UIImageView!
     
     //    MARK: - Public Methods
     func setupCell(post: Post) {
-        let url = URL(string: post.image)!
-        postsImage.kf.setImage(with: url)
+        if TabBarController.offlineMode == false {
+            let url = URL(string: post.image)!
+            postsImage.kf.setImage(with: url)
+        } else {
+            guard let imageData = post.imageData else { return }
+            postsImage.image = UIImage(data: imageData)
+        }
     }
 }

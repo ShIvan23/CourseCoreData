@@ -12,7 +12,7 @@ protocol AddNewPostDelegate: AnyObject {
     func updateFeedUI()
 }
 
-class ShareViewController: UIViewController {
+final class ShareViewController: UIViewController {
     
     //    MARK: - Lazy Properties
     private lazy var block = BlockViewController(view: (tabBarController?.view)!)
@@ -105,7 +105,6 @@ class ShareViewController: UIViewController {
                 let vc = FeedViewController()
                 self.delegate = vc
                 self.delegate?.updateFeedUI()
-                print("All compleate")
                 
             case .failure(let error):
                 self.alert.createAlert(error: error)

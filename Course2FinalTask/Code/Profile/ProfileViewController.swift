@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ProfileViewController: UIViewController {
+final class ProfileViewController: UIViewController {
     
     //    MARK:- IB Oulets
     @IBOutlet weak var collectionView: UICollectionView!
@@ -23,6 +23,9 @@ class ProfileViewController: UIViewController {
     private let apiManger = APIInstagramManager()
     private var appDelegate = AppDelegate.shared
     private let keychain: KeychainProtocol = KeychainManager()
+    private var dataManager: CoreDataInstagram {
+        AppDelegate.shared.dataManager
+    }
     
 //    MARK: - Life Cycles Methods
     override func viewDidLoad() {
@@ -34,8 +37,6 @@ class ProfileViewController: UIViewController {
         collectionView.register(ProfileHeaderCell.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: identifierHeader)
         collectionView.dataSource = self
         collectionView.delegate = self
-        
-        
     }
     
     //    Обновляет массив постов при публикации новой фотографии
@@ -64,7 +65,20 @@ class ProfileViewController: UIViewController {
                     self.createPostsArray()
                     self.addLogoutButton()
                     
+                    if self.fetchCurrentUser().isEmpty {
+                        self.saveCurrentUserInCoreData(user: user)
+                    }
+                    
                 case .failure(let error):
+                    switch error {
+                    case .offlineMode:
+                        guard let user = self.fetchCurrentUser().first else { return }
+                        self.user = user
+                        self.createPostsArray()
+                        self.addLogoutButton()
+                        
+                    default: return
+                    }
                     self.alert.createAlert(error: error)
                 }
             }
@@ -97,11 +111,40 @@ class ProfileViewController: UIViewController {
             case .success(let post):
                 self.postsOfCurrentUser = post
                 self.collectionView.reloadData()
+                if self.fetchFeedFromCoreData().isEmpty {
+                    self.saveFeedInCoreData(posts: post)
+                }
                 
             case .failure(let error):
+                switch error {
+                case .offlineMode:
+                    guard let user = self.user else { return }
+                    self.postsOfCurrentUser = self.fetchFeedFromCoreData().filter({ $0.authorUsername == user.username })
+                    
+                    self.collectionView.reloadData()
+                    
+                default: return
+                }
+                
                 self.alert.createAlert(error: error)
             }
         }
+    }
+    
+    private func saveFeedInCoreData(posts: [Post]) {
+        dataManager.saveFeedInCoreData(for: Feed.self, posts: posts)
+    }
+    
+    private func fetchFeedFromCoreData() -> [Post] {
+        dataManager.fetchFeed(for: Feed.self)
+    }
+    
+    private func saveCurrentUserInCoreData(user: User) {
+        dataManager.saveCurrentUserInCoreData(for: CurrentUser.self, user: user)
+    }
+    
+    private func fetchCurrentUser() -> [User] {
+        return dataManager.fetchCurrentUser(for: CurrentUser.self)
     }
     
 //    Выход из профиля

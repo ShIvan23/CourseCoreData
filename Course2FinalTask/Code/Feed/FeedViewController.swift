@@ -9,15 +9,27 @@
 import UIKit
 import Kingfisher
 
-class FeedViewController: UIViewController {
+final class FeedViewController: UIViewController {
     
-    //    MARK:- Private Properties
+    // MARK:- Private Properties
     @IBOutlet weak var collectionView: UICollectionView!
     
     private lazy var block = BlockViewController(view: (tabBarController?.view)!)
     private lazy var alert = AlertViewController(view: self)
-    private var postsArray: [Post]?
+    
+    private var postsArray: [Post]? {
+        didSet {
+            let posts = fetchFeedFromCoreData()
+            if posts.isEmpty {
+                saveFeedInCoreData(posts: postsArray!)
+            }
+        }
+    }
+    
     private var apiManger = APIInstagramManager()
+    private var dataManager: CoreDataInstagram {
+        AppDelegate.shared.dataManager
+    }
     
     //        MARK:- Life Cycles Methods
     override func viewDidLoad() {
@@ -27,23 +39,31 @@ class FeedViewController: UIViewController {
         collectionView.register(UINib(nibName: "FeedCell", bundle: nil), forCellWithReuseIdentifier: "FeedCell")
         collectionView.dataSource = self
         collectionView.delegate = self
-        
-        createPostsArrayWithBlock(token: APIInstagramManager.token)
     }
     
     //    Обновляет UI и скроллит в начало ленты при публикации новой фотографии
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         
-            createPostsArrayWithBlock(token: APIInstagramManager.token)
-            collectionView.scrollToItem(at: IndexPath(item: 0, section: 1), at: .top, animated: true)
+        if TabBarController.offlineMode == false {
+            createPostsArray(token: APIInstagramManager.token, blockAnimation: true)
+        }
+        collectionView.scrollToItem(at: IndexPath(item: 0, section: 1), at: .top, animated: true)
     }
     
     //    MARK: - Private Methods
-    //    Создает массив постов без блокировки UI для лайков
-    func createPostsArrayWithoutBlock(token: String) {
+    
+    //    Создает массив постов
+    private func createPostsArray(token: String, blockAnimation: Bool) {
+        if blockAnimation == true {
+            block.startAnimating()
+        }
         apiManger.feed(token: token) { [weak self] (result) in
             guard let self = self else { return }
+            
+            if blockAnimation == true {
+                self.block.stopAnimating()
+            }
             
             switch result {
             case .success(let posts):
@@ -51,27 +71,27 @@ class FeedViewController: UIViewController {
                 self.collectionView.reloadData()
                 
             case .failure(let error):
+                switch error {
+                
+                case .offlineMode:
+                    self.postsArray = self.fetchFeedFromCoreData()
+                    self.collectionView.reloadData()
+                
+                default:
+                    return
+                }
+                
                 self.alert.createAlert(error: error)
             }
         }
     }
     
-    //    Создает массив постов с блокировкой UI
-    private func createPostsArrayWithBlock(token: String) {
-        block.startAnimating()
-        apiManger.feed(token: token) { [weak self] (result) in
-            guard let self = self else { return }
-            self.block.stopAnimating()
-            
-            switch result {
-            case .success(let posts):
-                self.postsArray = posts
-                self.collectionView.reloadData()
-                
-            case .failure(let error):
-                self.alert.createAlert(error: error)
-            }
-        }
+    private func saveFeedInCoreData(posts: [Post]) {
+        dataManager.saveFeedInCoreData(for: Feed.self, posts: posts)
+    }
+    
+    private func fetchFeedFromCoreData() -> [Post] {
+        dataManager.fetchFeed(for: Feed.self)
     }
     
     //    Cоздание VC и переход в профиль пользователя
@@ -157,7 +177,7 @@ extension FeedViewController: LikeImageButtonDelegate {
         apiManger.likePost(token: APIInstagramManager.token, id: post.id) { [weak self] _ in
             guard let self = self else { return }
             
-            self.createPostsArrayWithoutBlock(token: APIInstagramManager.token)
+            self.createPostsArray(token: APIInstagramManager.token, blockAnimation: false)
         }
     }
     
@@ -168,13 +188,13 @@ extension FeedViewController: LikeImageButtonDelegate {
             apiManger.unlikePost(token: APIInstagramManager.token, id: post.id) { [weak self] _ in
                 guard let self = self else { return }
                 
-                self.createPostsArrayWithoutBlock(token: APIInstagramManager.token)
+                self.createPostsArray(token: APIInstagramManager.token, blockAnimation: false)
             }
         } else {
             apiManger.likePost(token: APIInstagramManager.token, id: post.id) { [weak self] _ in
                 guard let self = self else { return }
                 
-                self.createPostsArrayWithoutBlock(token: APIInstagramManager.token)
+                self.createPostsArray(token: APIInstagramManager.token, blockAnimation: false)
             }
         }
     }
@@ -185,7 +205,7 @@ extension FeedViewController: AddNewPostDelegate {
     
     //    Обновляет UI и скроллит в начало ленты при публикации новой фотографии
     func updateFeedUI() {
-        createPostsArrayWithoutBlock(token: APIInstagramManager.token)
+        createPostsArray(token: APIInstagramManager.token, blockAnimation: false)
         collectionView.scrollToItem(at: IndexPath(item: 0, section: 1), at: .top, animated: true)
     }
 }

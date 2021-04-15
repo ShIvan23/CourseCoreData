@@ -16,7 +16,7 @@ protocol LikeImageButtonDelegate: AnyObject {
     func tapLikesButton(post: Post)
 }
 
-class FeedCell: UICollectionViewCell {
+final class FeedCell: UICollectionViewCell {
     
     //    MARK:- Properties
     weak var delegate: LikeImageButtonDelegate?
@@ -52,11 +52,19 @@ class FeedCell: UICollectionViewCell {
     func setupCell() {
         
         guard let post = post else { return }
-        let urlAvatar = URL(string: post.authorAvatar)!
-        avatarImage.kf.setImage(with: urlAvatar)
         
-        let urlPost = URL(string: post.image)!
-        postImage.kf.setImage(with: urlPost)
+        if TabBarController.offlineMode == false {
+            let urlAvatar = URL(string: post.authorAvatar)!
+            avatarImage.kf.setImage(with: urlAvatar)
+            let urlPost = URL(string: post.image)!
+            postImage.kf.setImage(with: urlPost)
+        } else {
+            guard let imageData = post.imageData,
+                  let avatarData = post.authorAvatarData else { return }
+            
+            avatarImage.image = UIImage(data: avatarData)
+            postImage.image = UIImage(data: imageData)
+        }
         
         userNameLabel.text = post.authorUsername
 

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class AlertViewController: UIViewController {
+final class AlertViewController: UIViewController {
     
     //    MARK: - Private Properties
     private let inputViewControllers: UIViewController
@@ -27,7 +27,12 @@ class AlertViewController: UIViewController {
     func createAlert(error: Error?) {
         
         var title = "Unknown error!"
-        let massege = "Please, try again later."
+        var massege = "Please, try again later."
+        
+        if TabBarController.offlineMode == true {
+            title = "Offline mode"
+            massege = ""
+        }
         
         if let error = error as? ErrorManager {
             title = error.rawValue

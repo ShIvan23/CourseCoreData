@@ -13,7 +13,7 @@ typealias JSONCompletionHandler = (Data?, HTTPURLResponse?, Error?) -> Void
 
 enum APIResult<T> {
     case success(T)
-    case failure(Error)
+    case failure(ErrorManager)
 }
 
 protocol APIManager {
@@ -37,22 +37,19 @@ extension APIManager {
         
         let dataTask = session.dataTask(with: request) { (data, response, error) in
             
+            let error: ErrorManager
             guard let HTTPResponse = response as? HTTPURLResponse else {
 
-                let error = NSError()
-                completionHandler(nil, nil ,error)
+                TabBarController.offlineMode = true
+                error = .offlineMode
+                completionHandler(nil, nil, error)
                 return
             }
-            let error: ErrorManager
             
             switch HTTPResponse.statusCode {
             case 200:
                 print("response = \(HTTPResponse.statusCode)")
                 completionHandler(data, HTTPResponse, nil)
-                
-            case 400:
-                error = .badRequest
-                completionHandler(nil, HTTPResponse, error)
                 
             case 401:
                 error = .unauthorized
@@ -61,21 +58,11 @@ extension APIManager {
                     appDelegate.window?.rootViewController = AutorizationViewController()
                 }
                 completionHandler(nil, HTTPResponse, error)
-                
-            case 404:
-                error = .notFound
+
+            default:
+                TabBarController.offlineMode = true
+                error = .offlineMode
                 completionHandler(nil, HTTPResponse, error)
-                
-            case 406:
-                error = .notAcceptable
-                completionHandler(nil, HTTPResponse, error)
-                
-            case 422:
-                error = .unprocessable
-                completionHandler(nil, HTTPResponse, error)
-//            default: error = .transferError
-            default: return
-                
             }
         }
         return dataTask
@@ -88,22 +75,23 @@ extension APIManager {
             DispatchQueue.main.async {
                 guard let data = data else {
                     if let error = error {
-                        completionHandler(.failure(error))
+                        completionHandler(.failure(error as! ErrorManager))
                     }
+                    
                     return
                 }
                 
                 if data.isEmpty {
 //                    Для logout, так как там нет JSON
                     let error = NSError()
-                    completionHandler(.failure(error))
+                    completionHandler(.failure(error as! ErrorManager))
                 }
                 
                 if let value = decodeJSON(type: T.self, from: data) {
                     completionHandler(.success(value))
                 } else {
                     let error = NSError()
-                    completionHandler(.failure(error))
+                    completionHandler(.failure(error as! ErrorManager))
                 }
             }
         }

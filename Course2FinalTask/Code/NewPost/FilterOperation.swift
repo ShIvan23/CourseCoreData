@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class FilterOperation: Operation {
+final class FilterOperation: Operation {
     
     //    MARK: - Private Methods
     private let inputImage: UIImage

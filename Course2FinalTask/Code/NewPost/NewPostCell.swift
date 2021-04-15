@@ -10,7 +10,7 @@ import UIKit
 
 let identifierNewPost = "NewPostCell"
 
-class NewPostCell: UICollectionViewCell {
+final class NewPostCell: UICollectionViewCell {
     
     //    MARK:- Private Properties
     private let photoImageView: UIImageView = {

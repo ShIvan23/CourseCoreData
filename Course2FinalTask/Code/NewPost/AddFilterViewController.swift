@@ -8,7 +8,7 @@
 
 import UIKit
 
-class AddFilterViewController: UIViewController {
+final class AddFilterViewController: UIViewController {
     
     //    MARK: - Private Properties
     private var inputBigImage: UIImage

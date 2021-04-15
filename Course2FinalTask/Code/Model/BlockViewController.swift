@@ -8,7 +8,7 @@
 
 import UIKit
 
-class BlockViewController: UIViewController {
+final class BlockViewController: UIViewController {
     
     //    MARK:- Properties
     private let sendView: UIView

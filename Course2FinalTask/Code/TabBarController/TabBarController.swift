@@ -8,4 +8,8 @@
 
 import UIKit
 
-class TabBarController: UITabBarController {}
+final class TabBarController: UITabBarController {
+    
+    // MARK: - Public Properties
+    static var offlineMode = false
+}

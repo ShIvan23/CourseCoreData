@@ -14,7 +14,7 @@ protocol KeychainProtocol {
     func deleteToken(userName: String)
 }
 
-class KeychainManager: KeychainProtocol {
+final class KeychainManager: KeychainProtocol {
     
     // MARK: - Private Methods
     private func keychainQuery(userName: String? = nil) -> [String : AnyObject] {

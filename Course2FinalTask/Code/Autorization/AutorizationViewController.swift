@@ -10,7 +10,10 @@ import UIKit
 
 final class AutorizationViewController: UIViewController {
     
-    //    MARK: - Private Properties
+    // MARK: - Public Properties
+    var dataManager: CoreDataInstagram!
+    
+    // MARK: - Private Properties
     private var appDelegate = AppDelegate.shared
     private var apiManager = APIInstagramManager()
     private let keychain: KeychainProtocol = KeychainManager()
@@ -112,6 +115,8 @@ final class AutorizationViewController: UIViewController {
         let storyboard = UIStoryboard(name: AppDelegate.storyboardName, bundle: nil)
         
         guard let tabBar = storyboard.instantiateViewController(withIdentifier: "TabBar") as? TabBarController else { return }
+       
+//        tabBar.dataManger = dataManager
         
         appDelegate.window?.rootViewController = tabBar
     }

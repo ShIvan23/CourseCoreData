@@ -15,7 +15,7 @@ protocol FollowUnfollowDelegate: AnyObject {
     func tapFollowUnfollowButton(user: User)
 }
 
-class ProfileHeaderCell: UICollectionViewCell {
+final class ProfileHeaderCell: UICollectionViewCell {
     
     //    MARK: - Public Properties
     weak var delegate: FollowUnfollowDelegate?
@@ -99,8 +99,15 @@ class ProfileHeaderCell: UICollectionViewCell {
         nameLabel.text = user.fullName
         followersButton.setTitle("Followers: \(user.followsCount)", for: .normal)
         followingButton.setTitle("Following: \(user.followedByCount)", for: .normal)
+       
+        if TabBarController.offlineMode == false {
         let url = URL(string: user.avatar)
-        avatarImageView.kf.setImage(with: url)
+            avatarImageView.kf.setImage(with: url)
+        } else {
+            guard let imadeData = user.avatarData else { return }
+            avatarImageView.image = UIImage(data: imadeData)
+        }
+        
         followUnfollowButton.addTarget(self, action: #selector(tapFollowUnfollow), for: .touchUpInside)
     }
     
